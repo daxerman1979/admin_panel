@@ -2,9 +2,8 @@
 <html lang="sr">
 <head>
     <meta charset="UTF-8">
-    <!-- Meta viewport osigurava pravilno skaliranje na mobilnim uređajima -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Caribrodski Izbori - Baza Podataka</title>
+    <title>Caribrodski Izbori - Unos i Pregled</title>
     
     <style>
         :root {
@@ -54,16 +53,16 @@
 
         .live-dot {
             width: 12px; height: 12px;
-            background: #ef4444;
+            background: #10b981; /* Promenjeno u zeleno jer je sad i unos */
             border-radius: 50%;
-            animation: pulseRed 1.5s infinite;
+            animation: pulseGreen 1.5s infinite;
             flex-shrink: 0;
         }
 
-        @keyframes pulseRed {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        @keyframes pulseGreen {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
         .summary-stats {
@@ -87,7 +86,6 @@
         .summary-box.orange h3 { color: var(--accent-orange); }
         .summary-box p { margin: 5px 0 0 0; font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; }
 
-        /* Kontejner za padajuću listu */
         .controls-container {
             max-width: 800px;
             margin: 20px auto 0 auto;
@@ -145,117 +143,56 @@
         }
 
         .card-title {
-            margin: 0;
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--text-main);
-            line-height: 1.3;
+            margin: 0; font-size: 18px; font-weight: 800;
+            color: var(--text-main); line-height: 1.3;
         }
 
         .card-broj {
-            background: var(--accent-blue);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            flex-shrink: 0;
-            margin-left: 10px;
-        }
-
-        .admin-info-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            padding: 8px 10px;
-            border-radius: 8px;
-            margin-bottom: 5px;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        .pin-code {
-            font-size: 13px;
-            color: var(--accent-green);
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        .gps-coords {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-family: monospace;
+            background: var(--accent-blue); color: white;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 12px; font-weight: bold;
+            flex-shrink: 0; margin-left: 10px;
         }
 
         .card-stats {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border-color);
-            padding-top: 10px;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: flex; justify-content: space-between;
+            font-size: 13px; color: var(--text-muted);
+            border-top: 1px solid var(--border-color); padding-top: 10px;
+            flex-wrap: wrap; gap: 10px;
         }
         
         .card-stats span {
-            background: rgba(0,0,0,0.2);
-            padding: 4px 8px;
-            border-radius: 6px;
+            background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 6px;
         }
 
         .card-stats strong { color: var(--text-main); }
 
         .progress-container {
-            width: 100%;
-            background: rgba(255,255,255,0.1);
-            border-radius: 6px;
-            height: 14px;
-            overflow: hidden;
-            position: relative;
-            margin-top: 5px;
+            width: 100%; background: rgba(255,255,255,0.1);
+            border-radius: 6px; height: 14px; overflow: hidden;
+            position: relative; margin-top: 5px;
         }
 
         .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #f59e0b, #d97706);
+            height: 100%; background: linear-gradient(90deg, #f59e0b, #d97706);
             transition: width 1s ease-in-out;
         }
 
         .progress-text {
-            position: absolute;
-            top: 0px;
-            right: 5px;
-            font-size: 10px;
-            font-weight: bold;
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-            line-height: 14px;
+            position: absolute; top: 0px; right: 5px;
+            font-size: 10px; font-weight: bold; color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 14px;
         }
 
         .results-list {
-            background: rgba(0,0,0,0.2);
-            border-radius: 8px;
-            padding: 10px;
-            max-height: 250px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            background: rgba(0,0,0,0.2); border-radius: 8px;
+            padding: 10px; max-height: 250px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 8px;
         }
 
-        .results-list::-webkit-scrollbar { width: 4px; }
-        .results-list::-webkit-scrollbar-thumb { background: var(--accent-blue); border-radius: 4px; }
-
         .result-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 6px;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;
         }
         
         .result-item:last-child { border-bottom: none; padding-bottom: 0; }
@@ -263,35 +200,119 @@
         .result-votes { font-weight: bold; color: var(--accent-blue); background: rgba(59, 130, 246, 0.1); padding: 4px 10px; border-radius: 10px; font-size: 14px;}
 
         .empty-results {
-            text-align: center;
-            font-size: 13px;
-            color: var(--text-muted);
-            font-style: italic;
-            padding: 15px 0;
+            text-align: center; font-size: 13px; color: var(--text-muted);
+            font-style: italic; padding: 15px 0;
         }
 
-        /* Medija upiti za mobilne telefone */
+        /* STILOVI ZA FORMU ZA UNOS */
+        .form-section {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--accent-green);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
+        }
+
+        .form-section h3 {
+            margin: 0 0 15px 0;
+            color: var(--accent-green);
+            font-size: 18px;
+            text-align: center;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-dark);
+            color: var(--text-main);
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+        }
+
+        .party-input-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            background: rgba(0,0,0,0.2);
+            padding: 8px 10px;
+            border-radius: 8px;
+        }
+
+        .party-input-row label {
+            font-size: 12px;
+            flex: 1;
+            margin: 0;
+            padding-right: 10px;
+            line-height: 1.2;
+            color: var(--text-main);
+        }
+
+        .party-input-row input {
+            width: 80px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            background: var(--bg-dark);
+            color: var(--accent-orange);
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 6px;
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-save:active {
+            transform: scale(0.98);
+        }
+
         @media (max-width: 600px) {
-            .header-title {
-                font-size: 16px;
-            }
-            .summary-stats {
-                flex-direction: column;
-            }
-            .summary-box {
-                padding: 12px;
-            }
+            .header-title { font-size: 16px; }
+            .summary-stats { flex-direction: column; }
+            .summary-box { padding: 12px; }
             .summary-box h3 { font-size: 24px; }
-            .card-stats {
-                justify-content: flex-start;
-            }
+            .card-stats { justify-content: flex-start; }
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1 class="header-title"><div class="live-dot"></div> Baza Podataka Uživo</h1>
+        <h1 class="header-title"><div class="live-dot"></div> Baza - Administracija</h1>
         <div class="summary-stats">
             <div class="summary-box">
                 <h3 id="tot-upisano">0</h3>
@@ -308,7 +329,7 @@
         </div>
     </div>
 
-    <!-- Padajuća lista za mobilne i desktop -->
+    <!-- Padajuća lista -->
     <div class="controls-container">
         <select id="mesto-select">
             <option value="all">Prikaži sva biračka mesta</option>
@@ -321,7 +342,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             databaseURL: "https://daxgame-ad90a-default-rtdb.europe-west1.firebasedatabase.app/"
@@ -344,17 +365,58 @@
         const selectElement = document.getElementById('mesto-select');
         const container = document.getElementById('cards-container');
 
-        // Funkcija za renderovanje pojedinačne kartice
+        // Funkcija za čuvanje podataka u bazu
+        window.sacuvajPodatke = function(id) {
+            let izasloInput = document.getElementById('input-izaslo').value;
+            let vremeInput = document.getElementById('input-vreme').value;
+            
+            let rezultati = {};
+            let imaRezultata = false;
+
+            politickeListe.forEach((ime, idx) => {
+                let glasoviInput = document.getElementById(`input-stranka-${idx}`).value;
+                if(glasoviInput && glasoviInput !== "0" && glasoviInput !== "") {
+                    rezultati[idx] = parseInt(glasoviInput);
+                    imaRezultata = true;
+                }
+            });
+
+            const updateData = {
+                izaslo: parseInt(izasloInput) || 0,
+                vreme_update: vremeInput || ""
+            };
+
+            // Ako su upisani rezultati, šaljemo ih. U suprotnom saljemo null da obrisemo ako treba ili ne diramo
+            if (imaRezultata) {
+                updateData.rezultati = rezultati;
+            }
+
+            const dugme = document.querySelector('.btn-save');
+            dugme.innerText = "Čuvanje...";
+            dugme.style.background = "#f59e0b";
+
+            update(ref(db, 'biracka_mesta/' + id), updateData)
+                .then(() => {
+                    dugme.innerText = "Uspešno Sačuvano! ✓";
+                    dugme.style.background = "#10b981";
+                    setTimeout(() => {
+                        dugme.innerText = "Sačuvaj Podatke";
+                    }, 2000);
+                })
+                .catch((error) => {
+                    alert("Greška pri čuvanju: " + error);
+                    dugme.innerText = "Pokušaj ponovo";
+                    dugme.style.background = "#ef4444";
+                });
+        };
+
+        // Render kartice (samo pregled)
         function kreirajKarticuHtml(mesto) {
             let upisano = parseInt(mesto.ukupan_broj) || 0;
             let izaslo = parseInt(mesto.izaslo) || 0;
             let vreme = mesto.vreme_update ? `${mesto.vreme_update}h` : 'Nema unosa';
             let procenat = upisano > 0 ? ((izaslo / upisano) * 100).toFixed(1) : 0;
             
-            let pinKod = mesto.pin ? mesto.pin : 'N/A';
-            let latText = mesto.lat ? parseFloat(mesto.lat).toFixed(4) : '';
-            let lngText = mesto.lng ? parseFloat(mesto.lng).toFixed(4) : '';
-
             let rezultatiHtml = "";
             let ukupnoVazecihOvde = 0;
 
@@ -367,9 +429,7 @@
                         ukupnoVazecihOvde += glasovi;
                     }
                 });
-
                 strankeRez.sort((a,b) => b.glasovi - a.glasovi);
-
                 strankeRez.forEach(s => {
                     rezultatiHtml += `
                         <div class="result-item">
@@ -393,11 +453,6 @@
                         <span class="card-broj">Br. ${mesto.broj}</span>
                     </div>
                     
-                    <div class="admin-info-bar">
-                        <span class="pin-code">🔑 PIN: ${pinKod}</span>
-                        <span class="gps-coords">📍 ${latText}, ${lngText}</span>
-                    </div>
-                    
                     <div class="card-stats">
                         <span>Upisano: <strong>${upisano}</strong></span>
                         <span>Izašlo: <strong>${izaslo}</strong></span>
@@ -416,7 +471,45 @@
             `;
         }
 
-        // Funkcija koja crta izabrane podatke
+        // Render forme za unos
+        function kreirajFormuZaUnos(id, mesto) {
+            let izasloVal = mesto.izaslo || "";
+            let vremeVal = mesto.vreme_update || "";
+            
+            let strankeInputsHtml = "";
+            politickeListe.forEach((ime, idx) => {
+                let glasoviTrenutno = (mesto.rezultati && mesto.rezultati[idx]) ? mesto.rezultati[idx] : "";
+                strankeInputsHtml += `
+                    <div class="party-input-row">
+                        <label>${idx + 1}. ${ime}</label>
+                        <input type="number" id="input-stranka-${idx}" value="${glasoviTrenutno}" placeholder="0" min="0">
+                    </div>
+                `;
+            });
+
+            return `
+                <div class="form-section">
+                    <h3>Unos / Izmena Podataka</h3>
+                    
+                    <div class="form-group">
+                        <label>Trenutno izašlo glasača:</label>
+                        <input type="number" id="input-izaslo" value="${izasloVal}" placeholder="Unesi broj izašlih">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Vreme preseka (npr. 10:00, 14:00, Kraj):</label>
+                        <input type="text" id="input-vreme" value="${vremeVal}" placeholder="npr. 18:00">
+                    </div>
+
+                    <h4 style="color: var(--text-muted); font-size: 14px; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">Rezultati glasanja (Broj glasova)</h4>
+                    
+                    ${strankeInputsHtml}
+
+                    <button class="btn-save" onclick="sacuvajPodatke('${id}')">Sačuvaj Podatke</button>
+                </div>
+            `;
+        }
+
         function renderUI() {
             if (!globalData) return;
 
@@ -430,17 +523,30 @@
                 });
             } else {
                 if(globalData[selectedId]) {
+                    // Prikazujemo prvo statistiku (karticu) pa ispod formu za to mesto
                     htmlCards += kreirajKarticuHtml(globalData[selectedId]);
+                    htmlCards += kreirajFormuZaUnos(selectedId, globalData[selectedId]);
                 } else {
                     htmlCards = `<h3 style='text-align: center; color: var(--text-muted);'>Mesto nije pronađeno.</h3>`;
                 }
             }
 
-            container.innerHTML = htmlCards;
+            // Ne osvežavamo container dok je korisnik u formi (ako već nije odabrao 'all') 
+            // da mu ne bismo obrisali ono što kuca kad neko drugi upiše podatak u bazu.
+            // Zato update radimo samo ako ne postoji fokus na nekom inputu.
+            let aktivniElement = document.activeElement;
+            let korisnikKuca = aktivniElement && aktivniElement.tagName === "INPUT";
+            
+            if(!korisnikKuca || selectedId === "all") {
+                container.innerHTML = htmlCards;
+            }
         }
 
-        // Povezivanje padajuće liste sa funkcijom za renderovanje
-        selectElement.addEventListener('change', renderUI);
+        selectElement.addEventListener('change', () => {
+            // Kada se ručno promeni padajuća lista, forsiramo crtanje UI-ja
+            container.innerHTML = ""; 
+            renderUI();
+        });
 
         onValue(mestaRef, (snapshot) => {
             const data = snapshot.val();
@@ -456,35 +562,31 @@
             let opstinaUpisano = 0;
             let opstinaIzaslo = 0;
 
-            // Čuvanje trenutne selekcije padajuće liste pre osvežavanja
             let trenutnaSelekcija = selectElement.value;
             
-            let opcijeHtml = `<option value="all">Prikaži sva biračka mesta</option>`;
-
-            sortiranaMestaKeys.forEach(id => {
-                let mesto = data[id];
-                let upisano = parseInt(mesto.ukupan_broj) || 0;
-                let izaslo = parseInt(mesto.izaslo) || 0;
-                
-                opstinaUpisano += upisano;
-                opstinaIzaslo += izaslo;
-
-                opcijeHtml += `<option value="${id}">${mesto.broj}. ${mesto.naziv}</option>`;
-            });
-
-            // Osveži padajuću listu i vrati fokus na prethodno izabrano
-            selectElement.innerHTML = opcijeHtml;
-            if(sortiranaMestaKeys.includes(trenutnaSelekcija) || trenutnaSelekcija === 'all') {
+            // Ažuriranje padajuće liste vršimo samo ako još nije generisana ili ako su dodata nova mesta
+            if(selectElement.options.length <= 1) {
+                let opcijeHtml = `<option value="all">Prikaži sva biračka mesta</option>`;
+                sortiranaMestaKeys.forEach(id => {
+                    let mesto = data[id];
+                    opcijeHtml += `<option value="${id}">${mesto.broj}. ${mesto.naziv}</option>`;
+                });
+                selectElement.innerHTML = opcijeHtml;
                 selectElement.value = trenutnaSelekcija;
             }
 
-            // Ažuriranje glavne statistike
+            // Računanje ukupne statistike
+            sortiranaMestaKeys.forEach(id => {
+                let mesto = data[id];
+                opstinaUpisano += parseInt(mesto.ukupan_broj) || 0;
+                opstinaIzaslo += parseInt(mesto.izaslo) || 0;
+            });
+
             document.getElementById('tot-upisano').innerText = opstinaUpisano;
             document.getElementById('tot-izaslo').innerText = opstinaIzaslo;
             let totalProc = opstinaUpisano > 0 ? ((opstinaIzaslo / opstinaUpisano) * 100).toFixed(1) : 0;
             document.getElementById('tot-procenat').innerText = totalProc + "%";
 
-            // Ponovno iscrtavanje HTML-a na osnovu izbora u padajućoj listi
             renderUI();
         });
     </script>
