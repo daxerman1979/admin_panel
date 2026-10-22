@@ -15,6 +15,7 @@
             --accent-green: #10b981;
             --border-color: #334155;
             --accent-orange: #f59e0b;
+            --accent-purple: #8b5cf6;
         }
 
         html, body {
@@ -82,12 +83,12 @@
         }
         .btn-blue { background: var(--accent-blue); }
         .btn-green { background: var(--accent-green); }
-        .btn-orange { background: var(--accent-orange); margin-top: 15px;}
+        .btn-orange { background: var(--accent-orange); }
         .btn:active { transform: scale(0.98); }
 
         /* Meni ekran */
         .menu-buttons { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
-        .menu-buttons .btn { padding: 25px; font-size: 18px; }
+        .menu-buttons .btn { padding: 20px; font-size: 16px; }
 
         /* Statistika opštine */
         .stats-box {
@@ -146,6 +147,7 @@
             <div class="menu-buttons">
                 <button class="btn btn-blue" onclick="otvoriIzlaznost()">Unos Izlaznosti</button>
                 <button class="btn btn-orange" onclick="otvoriRezultate()">Unos Rezultata</button>
+                <button class="btn btn-green" onclick="otvoriIzvestaj()">Izveštaj o izborima</button>
             </div>
 
             <div class="stats-box">
@@ -227,6 +229,14 @@
             </div>
         </div>
 
+        <!-- EKRAN 5: IZVEŠTAJ -->
+        <div id="view-izvestaj" class="view">
+            <h2 style="margin-top: 0; color: var(--accent-green);">Izveštaj o izborima</h2>
+            <div id="izvestaj-content">
+                <!-- Sadržaj izveštaja generiše JS -->
+            </div>
+        </div>
+
     </div>
 
     <script type="module">
@@ -257,7 +267,6 @@
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(idEkrana).classList.add('active');
             
-            // Prikazuj dugme 'Nazad' samo ako nismo na loginu ili glavnom meniju
             const btnBack = document.getElementById('btn-back');
             if(idEkrana === 'view-login' || idEkrana === 'view-menu') {
                 btnBack.style.display = 'none';
@@ -288,6 +297,11 @@
             prikaziEkran('view-rezultati');
         };
 
+        window.otvoriIzvestaj = function() {
+            generisiIzvestaj();
+            prikaziEkran('view-izvestaj');
+        };
+
         // GENERISANJE PADAJUĆIH MENIJA I STATISTIKE
         onValue(mestaRef, (snapshot) => {
             const data = snapshot.val();
@@ -303,12 +317,11 @@
             sortiranaMesta.forEach(id => {
                 let mesto = data[id];
                 opcijeHtml += `<option value="${id}">${mesto.broj}. ${mesto.naziv}</option>`;
-                
                 opstinaUpisano += parseInt(mesto.ukupan_broj) || 0;
                 opstinaIzaslo += parseInt(mesto.izaslo) || 0;
             });
 
-            // Čuvamo trenutni izbor da se ne resetuje korisniku ako kuca
+            // Čuvanje trenutnog izbora
             let trenIzlaznost = document.getElementById('select-izlaznost-mesto').value;
             let trenRezultati = document.getElementById('select-rezultati-mesto').value;
 
@@ -318,12 +331,123 @@
             if(trenIzlaznost) document.getElementById('select-izlaznost-mesto').value = trenIzlaznost;
             if(trenRezultati) document.getElementById('select-rezultati-mesto').value = trenRezultati;
 
-            // Osvežavanje statistike
+            // Osvežavanje statistike u meniju
             document.getElementById('stat-ukupno').innerText = opstinaUpisano;
             document.getElementById('stat-izaslo').innerText = opstinaIzaslo;
             let proc = opstinaUpisano > 0 ? ((opstinaIzaslo / opstinaUpisano) * 100).toFixed(1) : 0;
             document.getElementById('stat-procenat').innerText = proc + "%";
+
+            // Osveži izveštaj uživo ako je otvoren
+            if (document.getElementById('view-izvestaj').classList.contains('active')) {
+                generisiIzvestaj();
+            }
         });
+
+        // LOGIKA ZA EKRAN: IZVEŠTAJ
+        window.generisiIzvestaj = function() {
+            if (!globalData) return;
+            
+            let opstinaUpisano = 0;
+            let opstinaIzaslo = 0;
+            let ukupniRezultati = {};
+            politickeListe.forEach((_, i) => ukupniRezultati[i] = 0);
+            
+            let sortiranaMestaKeys = Object.keys(globalData).sort((a,b) => parseInt(globalData[a].broj) - parseInt(globalData[b].broj));
+            let mestaHtml = "";
+
+            sortiranaMestaKeys.forEach(id => {
+                let mesto = globalData[id];
+                let upisano = parseInt(mesto.ukupan_broj) || 0;
+                let izaslo = parseInt(mesto.izaslo) || 0;
+                
+                opstinaUpisano += upisano;
+                opstinaIzaslo += izaslo;
+                
+                let mestoRezultati = [];
+                let mestoVazecih = 0;
+                
+                if(mesto.rezultati) {
+                    Object.keys(mesto.rezultati).forEach(idx => {
+                        let glasovi = parseInt(mesto.rezultati[idx]) || 0;
+                        ukupniRezultati[idx] += glasovi;
+                        if(glasovi > 0) {
+                            mestoRezultati.push({ime: politickeListe[idx], glasovi: glasovi});
+                            mestoVazecih += glasovi;
+                        }
+                    });
+                }
+                
+                mestoRezultati.sort((a,b) => b.glasovi - a.glasovi);
+                let mestoRezHtml = "";
+                mestoRezultati.forEach(r => {
+                    mestoRezHtml += `
+                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); padding:6px 0;">
+                        <span style="font-size:12px; color:var(--text-muted);">${r.ime}</span>
+                        <span style="font-weight:bold; color:var(--accent-blue);">${r.glasovi}</span>
+                    </div>`;
+                });
+                
+                let procenat = upisano > 0 ? ((izaslo / upisano)*100).toFixed(1) : 0;
+                
+                mestaHtml += `
+                <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; padding:15px; margin-bottom:15px;">
+                    <h3 style="margin:0 0 10px 0; font-size:16px; color:var(--text-main);">${mesto.broj}. ${mesto.naziv}</h3>
+                    <div style="display:flex; justify-content:space-between; background:rgba(0,0,0,0.2); padding:8px; border-radius:6px; font-size:12px; margin-bottom:10px;">
+                        <span>Upisano: <strong>${upisano}</strong></span>
+                        <span>Izašlo: <strong style="color:var(--accent-orange);">${izaslo} (${procenat}%)</strong></span>
+                    </div>
+                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:5px;">Važećih glasova: <strong style="color:white;">${mestoVazecih}</strong></div>
+                    <div style="max-height: 180px; overflow-y: auto;">
+                        ${mestoRezHtml ? mestoRezHtml : '<div style="font-size:12px; color:gray; font-style:italic;">Nema unetih rezultata</div>'}
+                    </div>
+                </div>`;
+            });
+
+            // Priprema ukupnih rezultata
+            let totalRezArr = [];
+            let ukupnoVazecih = 0;
+            Object.keys(ukupniRezultati).forEach(idx => {
+                if(ukupniRezultati[idx] > 0) {
+                    totalRezArr.push({ime: politickeListe[idx], glasovi: ukupniRezultati[idx]});
+                    ukupnoVazecih += ukupniRezultati[idx];
+                }
+            });
+            totalRezArr.sort((a,b) => b.glasovi - a.glasovi);
+            
+            let totalRezHtml = "";
+            totalRezArr.forEach((r, index) => {
+                totalRezHtml += `
+                <div style="display:flex; justify-content:space-between; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-bottom:6px; border:1px solid var(--border-color);">
+                    <span style="font-size:13px;"><strong>${index + 1}.</strong> ${r.ime}</span>
+                    <span style="font-weight:bold; color:var(--accent-orange); font-size:16px;">${r.glasovi}</span>
+                </div>`;
+            });
+
+            let totalProc = opstinaUpisano > 0 ? ((opstinaIzaslo/opstinaUpisano)*100).toFixed(1) : 0;
+
+            let finalHtml = `
+                <div style="background:var(--bg-card); border:1px solid var(--accent-green); border-radius:12px; padding:15px; margin-bottom:25px;">
+                    <h3 style="margin:0 0 15px 0; text-align:center; color:var(--accent-green);">ZBIRNO - CELA OPŠTINA</h3>
+                    
+                    <div style="display:flex; justify-content:space-between; text-align:center; margin-bottom:15px; background:rgba(16, 185, 129, 0.1); border:1px solid rgba(16, 185, 129, 0.3); padding:10px; border-radius:8px;">
+                        <div><div style="font-size:11px; color:var(--text-muted);">UPISANO</div><div style="font-weight:bold; font-size:16px;">${opstinaUpisano}</div></div>
+                        <div><div style="font-size:11px; color:var(--text-muted);">IZAŠLO</div><div style="font-weight:bold; font-size:16px;">${opstinaIzaslo}</div></div>
+                        <div><div style="font-size:11px; color:var(--text-muted);">PROCENAT</div><div style="font-weight:bold; font-size:16px; color:var(--accent-blue);">${totalProc}%</div></div>
+                    </div>
+                    
+                    <div style="font-size:13px; color:var(--text-muted); margin-bottom:15px; text-align:center; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
+                        Ukupno važećih glasova: <strong style="color:white; font-size:16px;">${ukupnoVazecih}</strong>
+                    </div>
+                    
+                    ${totalRezHtml ? totalRezHtml : '<div style="text-align:center; font-size:12px; color:gray;">Nema unetih rezultata u opštini</div>'}
+                </div>
+                
+                <h3 style="color:var(--text-muted); font-size:16px; margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:5px; text-transform:uppercase;">Izveštaj po mestima</h3>
+                ${mestaHtml}
+            `;
+
+            document.getElementById('izvestaj-content').innerHTML = finalHtml;
+        };
 
         // LOGIKA ZA EKRAN: IZLAZNOST
         window.popuniIzlaznostFormu = function() {
